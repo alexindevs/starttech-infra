@@ -28,7 +28,7 @@ starttech-infra/
 
 ## Prerequisites
 
-- [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.6.0
+- [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.15.0
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) v2, configured with credentials that have sufficient IAM permissions
 - An S3 bucket for Terraform remote state (set `TF_STATE_BUCKET` env var or update `main.tf`)
 
