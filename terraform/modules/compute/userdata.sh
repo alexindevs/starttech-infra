@@ -9,7 +9,7 @@ systemctl start docker
 usermod -a -G docker ec2-user
 
 mkdir -p /var/log/starttech /etc/starttech
-chmod 755 /var/log/starttech
+chmod 777 /var/log/starttech
 
 # CloudWatch agent config
 # NOTE: ${log_group_name} is a Terraform templatefile variable (replaced at apply time)
