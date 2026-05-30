@@ -47,7 +47,10 @@ resource "aws_iam_role_policy" "ssm_secrets" {
         "ssm:GetParameter",
         "ssm:GetParametersByPath"
       ]
-      Resource = "arn:aws:ssm:*:*:parameter/starttech/${var.environment}/*"
+      Resource = [
+        "arn:aws:ssm:*:*:parameter/starttech/${var.environment}",
+        "arn:aws:ssm:*:*:parameter/starttech/${var.environment}/*"
+      ]
     }]
   })
 }
