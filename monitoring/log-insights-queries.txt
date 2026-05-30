@@ -1,0 +1,24 @@
+# Log group: /starttech/production/app
+# Paste any of these into CloudWatch Logs Insights
+
+# Error rate over time
+filter @message like /ERROR/
+| stats count() as errorCount by bin(5m)
+| sort @timestamp desc
+
+# All requests except health checks
+fields @timestamp, @message
+| filter @message not like /\/health/
+| sort @timestamp desc
+| limit 100
+
+# Request count per minute
+filter @message like /request/
+| stats count() as requests by bin(1m)
+| sort @timestamp desc
+
+# Top erroring paths
+filter @message like /ERROR/
+| parse @message '"path":"*"' as requestPath
+| stats count() as errors by requestPath
+| sort errors desc | limit 20

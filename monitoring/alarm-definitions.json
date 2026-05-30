@@ -1,0 +1,96 @@
+{
+  "alarms": [
+    {
+      "AlarmName": "starttech-high-cpu",
+      "AlarmDescription": "CPU > 70% for 10 min — triggers scale-out",
+      "MetricName": "CPUUtilization",
+      "Namespace": "AWS/EC2",
+      "Statistic": "Average",
+      "Period": 300,
+      "EvaluationPeriods": 2,
+      "Threshold": 70,
+      "ComparisonOperator": "GreaterThanThreshold",
+      "Dimensions": [
+        {
+          "Name": "AutoScalingGroupName",
+          "Value": "production-backend-asg"
+        }
+      ]
+    },
+    {
+      "AlarmName": "starttech-low-cpu",
+      "AlarmDescription": "CPU < 30% for 20 min — triggers scale-in",
+      "MetricName": "CPUUtilization",
+      "Namespace": "AWS/EC2",
+      "Statistic": "Average",
+      "Period": 300,
+      "EvaluationPeriods": 4,
+      "Threshold": 30,
+      "ComparisonOperator": "LessThanThreshold",
+      "Dimensions": [
+        {
+          "Name": "AutoScalingGroupName",
+          "Value": "production-backend-asg"
+        }
+      ]
+    },
+    {
+      "AlarmName": "starttech-high-5xx",
+      "AlarmDescription": "5xx errors > 10/min on ALB",
+      "MetricName": "HTTPCode_Target_5XX_Count",
+      "Namespace": "AWS/ApplicationELB",
+      "Statistic": "Sum",
+      "Period": 60,
+      "EvaluationPeriods": 2,
+      "Threshold": 10,
+      "ComparisonOperator": "GreaterThanThreshold",
+      "TreatMissingData": "notBreaching",
+      "Dimensions": [
+        {
+          "Name": "LoadBalancer",
+          "Value": "app/production-alb/<ALB_ID>"
+        }
+      ]
+    },
+    {
+      "AlarmName": "starttech-unhealthy-hosts",
+      "AlarmDescription": "Unhealthy targets > 0 on ALB target group",
+      "MetricName": "UnHealthyHostCount",
+      "Namespace": "AWS/ApplicationELB",
+      "Statistic": "Average",
+      "Period": 60,
+      "EvaluationPeriods": 2,
+      "Threshold": 0,
+      "ComparisonOperator": "GreaterThanThreshold",
+      "TreatMissingData": "notBreaching",
+      "Dimensions": [
+        {
+          "Name": "LoadBalancer",
+          "Value": "app/production-alb/<ALB_ID>"
+        },
+        {
+          "Name": "TargetGroup",
+          "Value": "targetgroup/production-backend-tg/<TG_ID>"
+        }
+      ]
+    },
+    {
+      "AlarmName": "starttech-redis-cpu",
+      "AlarmDescription": "Redis CPU > 80%",
+      "MetricName": "EngineCPUUtilization",
+      "Namespace": "AWS/ElastiCache",
+      "Statistic": "Average",
+      "Period": 300,
+      "EvaluationPeriods": 2,
+      "Threshold": 80,
+      "ComparisonOperator": "GreaterThanThreshold",
+      "Dimensions": [
+        {
+          "Name": "CacheClusterId",
+          "Value": "production-redis"
+        }
+      ]
+    }
+  ],
+  "_note": "ALB Dimensions use the ARN suffix (e.g. app/production-alb/<id>). Replace <ALB_ID> and <TG_ID> with the values from 'terraform output' after apply. The Terraform resources in modules/compute/main.tf manage these alarms automatically; this file is a reference for manual CLI deployment."
+}

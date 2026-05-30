@@ -1,0 +1,144 @@
+{
+  "_note": "Deploy via: aws cloudwatch put-dashboard --dashboard-name starttech-production --dashboard-body file://cloudwatch-dashboard.json. Replace <ALB_ARN_SUFFIX> with the value of 'terraform output alb_arn' stripped of the 'arn:aws:elasticloadbalancing:*:*:' prefix (i.e. the part starting with 'loadbalancer/').",
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "EC2 CPU Utilization",
+        "view": "timeSeries",
+        "metrics": [
+          [
+            "AWS/EC2",
+            "CPUUtilization",
+            "AutoScalingGroupName",
+            "production-backend-asg"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "annotations": {
+          "horizontal": [
+            { "label": "Scale-out threshold", "value": 70, "color": "#ff6961" },
+            { "label": "Scale-in threshold",  "value": 30, "color": "#77dd77" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "ALB Request Count",
+        "view": "timeSeries",
+        "metrics": [
+          [
+            "AWS/ApplicationELB",
+            "RequestCount",
+            "LoadBalancer",
+            "app/production-alb/<ALB_ARN_SUFFIX>"
+          ]
+        ],
+        "period": 60,
+        "region": "us-east-1"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 6,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "ALB 5xx Errors",
+        "view": "timeSeries",
+        "metrics": [
+          [
+            "AWS/ApplicationELB",
+            "HTTPCode_Target_5XX_Count",
+            "LoadBalancer",
+            "app/production-alb/<ALB_ARN_SUFFIX>"
+          ]
+        ],
+        "period": 60,
+        "region": "us-east-1",
+        "annotations": {
+          "horizontal": [
+            { "label": "Alarm threshold", "value": 10, "color": "#ff6961" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 6,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "ALB Unhealthy Hosts",
+        "view": "timeSeries",
+        "metrics": [
+          [
+            "AWS/ApplicationELB",
+            "UnHealthyHostCount",
+            "LoadBalancer",
+            "app/production-alb/<ALB_ARN_SUFFIX>"
+          ]
+        ],
+        "period": 60,
+        "region": "us-east-1",
+        "annotations": {
+          "horizontal": [
+            { "label": "Alarm threshold", "value": 0, "color": "#ff6961" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 12,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Redis CPU Utilization",
+        "view": "timeSeries",
+        "metrics": [
+          [
+            "AWS/ElastiCache",
+            "EngineCPUUtilization",
+            "CacheClusterId",
+            "production-redis"
+          ]
+        ],
+        "period": 300,
+        "region": "us-east-1",
+        "annotations": {
+          "horizontal": [
+            { "label": "Alarm threshold", "value": 80, "color": "#ff6961" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "log",
+      "x": 12,
+      "y": 12,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "App Errors (last hour)",
+        "query": "SOURCE '/starttech/production/app' | fields @timestamp, @message | filter @message like /ERROR/ | sort @timestamp desc | limit 20",
+        "region": "us-east-1",
+        "view": "table"
+      }
+    }
+  ]
+}
