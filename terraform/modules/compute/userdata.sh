@@ -79,6 +79,6 @@ if docker pull ${ecr_repository_url}:latest 2>/dev/null; then
     --restart always \
     -p 8080:8080 \
     -v /var/log/starttech:/var/log/starttech \
-    --env-file /etc/starttech/app.env \
+    -v /etc/starttech/app.env:/.env:ro \
     ${ecr_repository_url}:latest
 fi
