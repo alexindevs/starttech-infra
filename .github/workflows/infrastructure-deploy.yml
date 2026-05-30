@@ -31,15 +31,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
  
-      - name: Refresh HashiCorp GPG key
-        run: |
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | \
-            sudo gpg --batch --yes --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
+        run: |
+          wget -q "https://releases.hashicorp.com/terraform/${{ env.TF_VERSION }}/terraform_${{ env.TF_VERSION }}_linux_amd64.zip"
+          unzip -q "terraform_${{ env.TF_VERSION }}_linux_amd64.zip"
+          sudo mv terraform /usr/local/bin/terraform
+          terraform version
  
       - name: Terraform Format Check
         run: terraform fmt -check
