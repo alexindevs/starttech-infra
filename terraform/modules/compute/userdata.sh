@@ -61,16 +61,22 @@ AWS_REGION=$REGION
 APPEOF
 
 # Fetch secrets from SSM Parameter Store and append to env file
+# Using JSON output + python3 to safely handle special characters in values (e.g. & in URIs)
 echo "Fetching secrets from SSM path /starttech/${environment}..."
 aws ssm get-parameters-by-path \
   --path "/starttech/${environment}" \
   --with-decryption \
   --region "$REGION" \
-  --query "Parameters[*].[Name,Value]" \
-  --output text | while IFS=$'\t' read -r name value; do
-    key=$(basename "$name")
-    echo "$key=$value" >> /etc/starttech/app.env
-done
+  --query 'Parameters[*].{Name:Name,Value:Value}' \
+  --output json | python3 -c "
+import json, sys, os
+params = json.load(sys.stdin)
+with open('/etc/starttech/app.env', 'a') as f:
+    for p in params:
+        key = os.path.basename(p['Name'])
+        value = p['Value']
+        f.write(key + '=' + value + '\n')
+"
 chmod 644 /etc/starttech/app.env
 
 # Pull and start the container (safe to fail on first boot before image exists)
